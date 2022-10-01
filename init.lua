@@ -46,27 +46,6 @@ dofile(modpath.."/inventory.lua")
 dofile(modpath.."/register.lua")
 dofile(modpath.."/chests.lua")
 
--- Undo all of the locked wooden chest recipes, and just make them use a padlock.
-minetest.register_on_mods_loaded(function()
-	minetest.clear_craft({output = "default:chest_locked"})
-	minetest.register_craft({
-		output = "default:chest_locked",
-		recipe = {
-			{ "group:wood", "group:wood", "group:wood" },
-			{ "group:wood", "basic_materials:padlock", "group:wood" },
-			{ "group:wood", "group:wood", "group:wood" }
-		}
-	})
-	minetest.register_craft({
-		output = "default:chest_locked",
-		type = "shapeless",
-		recipe = {
-			"default:chest",
-			"basic_materials:padlock"
-		}
-	})
-end)
-
 -- Conversion for old chests
 minetest.register_lbm({
 	name = "technic_chests:old_chest_conversion",
