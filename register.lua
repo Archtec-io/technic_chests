@@ -225,6 +225,27 @@ function technic.chests.register_chest(nodename, data)
 		}
 	end
 	minetest.register_node(colon..nodename, def)
+	techage.register_node({nodename}, {
+		on_inv_request = function(pos, in_dir, access_type)
+			local meta = minetest.get_meta(pos)
+			return meta:get_inventory(), "main"
+		end,
+		on_pull_item = function(pos, in_dir, num)
+			local meta = minetest.get_meta(pos)
+			local inv = meta:get_inventory()
+			return techage.get_items(pos, inv, "main", num)
+		end,
+		on_push_item = function(pos, in_dir, stack)
+			local meta = minetest.get_meta(pos)
+			local inv = meta:get_inventory()
+			return techage.put_items(inv, "main", stack)
+		end,
+		on_unpull_item = function(pos, in_dir, stack)
+			local meta = minetest.get_meta(pos)
+			local inv = meta:get_inventory()
+			return techage.put_items(inv, "main", stack)
+		end,
+	})
 	if data.color then
 		for i = 1, 15 do
 			local colordef = {}
