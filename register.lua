@@ -230,10 +230,22 @@ function technic.chests.register_chest(nodename, data)
 			local meta = minetest.get_meta(pos)
 			return meta:get_inventory(), "main"
 		end,
-		on_pull_item = function(pos, in_dir, num)
+		on_pull_item = function(pos, in_dir, num, item_name)
 			local meta = minetest.get_meta(pos)
 			local inv = meta:get_inventory()
-			return techage.get_items(pos, inv, "main", num)
+
+			if inv:is_empty("main") then
+				return nil
+			end
+
+			if item_name then
+				local taken = inv:remove_item("main", {name = item_name, count = num})
+				if taken:get_count() > 0 then
+					return taken
+				end
+			else -- no item given
+				return techage.get_items(pos, inv, "main", num)
+			end
 		end,
 		on_push_item = function(pos, in_dir, stack)
 			local meta = minetest.get_meta(pos)
