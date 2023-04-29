@@ -47,6 +47,42 @@ local function get_tiles(data, color)
 	return tiles
 end
 
+local function ta_support(node)
+	techage.register_node({node}, {
+		on_inv_request = function(pos, in_dir, access_type)
+			local meta = minetest.get_meta(pos)
+			return meta:get_inventory(), "main"
+		end,
+		on_pull_item = function(pos, in_dir, num, item_name)
+			local meta = minetest.get_meta(pos)
+			local inv = meta:get_inventory()
+
+			if inv:is_empty("main") then
+				return nil
+			end
+
+			if item_name then
+				local taken = inv:remove_item("main", {name = item_name, count = num})
+				if taken:get_count() > 0 then
+					return taken
+				end
+			else -- no item given
+				return techage.get_items(pos, inv, "main", num)
+			end
+		end,
+		on_push_item = function(pos, in_dir, stack)
+			local meta = minetest.get_meta(pos)
+			local inv = meta:get_inventory()
+			return techage.put_items(inv, "main", stack)
+		end,
+		on_unpull_item = function(pos, in_dir, stack)
+			local meta = minetest.get_meta(pos)
+			local inv = meta:get_inventory()
+			return techage.put_items(inv, "main", stack)
+		end,
+	})
+end
+
 function technic.chests.register_chest(nodename, data)
 	assert(data.tiles or data.texture_prefix, "technic.chests.register_chest: tiles or texture_prefix required")
 	assert(data.description, "technic.chests.register_chest: description required")
@@ -225,39 +261,7 @@ function technic.chests.register_chest(nodename, data)
 		}
 	end
 	minetest.register_node(colon..nodename, def)
-	techage.register_node({nodename}, {
-		on_inv_request = function(pos, in_dir, access_type)
-			local meta = minetest.get_meta(pos)
-			return meta:get_inventory(), "main"
-		end,
-		on_pull_item = function(pos, in_dir, num, item_name)
-			local meta = minetest.get_meta(pos)
-			local inv = meta:get_inventory()
-
-			if inv:is_empty("main") then
-				return nil
-			end
-
-			if item_name then
-				local taken = inv:remove_item("main", {name = item_name, count = num})
-				if taken:get_count() > 0 then
-					return taken
-				end
-			else -- no item given
-				return techage.get_items(pos, inv, "main", num)
-			end
-		end,
-		on_push_item = function(pos, in_dir, stack)
-			local meta = minetest.get_meta(pos)
-			local inv = meta:get_inventory()
-			return techage.put_items(inv, "main", stack)
-		end,
-		on_unpull_item = function(pos, in_dir, stack)
-			local meta = minetest.get_meta(pos)
-			local inv = meta:get_inventory()
-			return techage.put_items(inv, "main", stack)
-		end,
-	})
+	ta_support(nodename)
 	if data.color then
 		for i = 1, 15 do
 			local colordef = {}
@@ -267,6 +271,7 @@ function technic.chests.register_chest(nodename, data)
 			colordef.groups = node_groups_no_inv
 			colordef.tiles = get_tiles(data, i)
 			minetest.register_node(colon..nodename.."_"..technic.chests.colors[i][1], colordef)
+			ta_support(nodename.."_"..technic.chests.colors[i][1])
 		end
 	end
 end
