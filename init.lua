@@ -46,6 +46,24 @@ dofile(modpath.."/inventory.lua")
 dofile(modpath.."/register.lua")
 dofile(modpath.."/chests.lua")
 
+minetest.register_craft({
+	output = "default:chest_locked",
+	recipe = {
+		{"group:wood", "group:wood", "group:wood"},
+		{"group:wood", "basic_materials:padlock", "group:wood"},
+		{"group:wood", "group:wood", "group:wood"}
+	}
+})
+
+minetest.register_craft({
+	output = "default:chest_locked",
+	type = "shapeless",
+	recipe = {
+		"default:chest",
+		"basic_materials:padlock"
+	}
+})
+
 -- Conversion for old chests
 minetest.register_lbm({
 	name = "technic_chests:old_chest_conversion",
